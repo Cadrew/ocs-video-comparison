@@ -75,22 +75,22 @@ def csv_to_array(lines):
             output.append(cols)
     return output
 
-def mean(array, input):
-    mean = 0.0
+def average(array, input):
+    average = 0.0
     for x in range(array[0] - 1, array[len(array) - 1] - 1):
-        mean += float(input[x][1])
-    return mean / len(array)
+        average += float(input[x][1])
+    return average / len(array)
 
-def mean_on_ten(array, index):
-    mean, end = 0.0, index + 10
+def average_on_ten(array, index):
+    average, end = 0.0, index + 10
     if(len(array) - index <= 10):
         end = len(array)
     for j in range(index, end):
-        mean += float(array[j][1])
-    return mean / 10
+        average += float(array[j][1])
+    return average / 10
 
 def is_relevant(array, input):
-    if(mean(array, input) >= 70):
+    if(average(array, input) >= 70):
         return True
     return False
 
@@ -118,14 +118,14 @@ def get_string_time(total_frames, current_frame, duration, timelaps=0):
     seconds = ("0" + str(seconds) if seconds < 10 else str(seconds))
     return [hours, minutes, seconds]
 
-def generate_output_mean(input, output, name):
+def generate_output_average(input, output, name):
     if not os.path.exists("output"):
         os.mkdir("output")
     file = open("output\\" + name,"w")
     for o in range(0, len(output)):
         file.write(str(output[o][0]) + " -> " \
             + str(output[o][len(output[o]) - 1]) \
-            + " = " + str(mean(output[o], input)) \
+            + " = " + str(average(output[o], input)) \
             + " (min: " + str(range_min(output[o], input)[0]) \
             + " at " + str(range_min(output[o], input)[1]) \
             + " - max: " + str(range_max(output[o], input)[0]) \
@@ -146,7 +146,7 @@ def generate_output_ass(input, output, input_video, name):
             + "Default,,0,0,0,," \
             + str(output[o][0]) + " -> " \
             + str(output[o][len(output[o]) - 1]) \
-            + " = " + str(mean(output[o], input)) \
+            + " = " + str(average(output[o], input)) \
             + " (min: " + str(range_min(output[o], input)[0]) \
             + " at " + str(range_min(output[o], input)[1]) \
             + " - max: " + str(range_max(output[o], input)[0]) \
@@ -196,7 +196,7 @@ def main(argv):
         output, comp = [], []
         psnr_standard = 70
         for i in range(0, len(input)):
-            if(mean_on_ten(input, i) > psnr_standard):
+            if(average_on_ten(input, i) > psnr_standard):
                 comp.append(i + 1)
             elif(comp and is_relevant(comp, input)):
                 output.append(comp)
@@ -205,7 +205,7 @@ def main(argv):
                 comp = []
 
         print("Number of differences: " + str(len(output)))
-        generate_output_mean(input, output, "output_mean.txt")
+        generate_output_average(input, output, "output_average.txt")
         generate_output_ass(input, output, video_one, "output_ass.ass")
         generate_output_psnr(input, output, "output_psnr.log")
 

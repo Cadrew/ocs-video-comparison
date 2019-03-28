@@ -7,7 +7,7 @@ This is a video comparison project using FFMPEG developped by Onii-ChanSub.
 The script is only compatible with Windows.
 The goal is to compare two videos using PSNR and MSE estimator.
 
-It can compare videos in the following formats :
+It can compare videos in the following formats:
 - MKV
 - MP4
 - MOV
@@ -24,23 +24,42 @@ You can download the latest Python version [here](https://www.python.org/downloa
 
 ## Compare two videos
 
-Open the project folder and use the following command in your CLI (Command Line Interface) :
+Open the project folder and use the following command in your CLI (Command Line Interface):
 ```CLI
 python ocs_comparison.py <input_video_1> <input_video_2>
 ```
 
-By default, the *extract* argument is *no*, but if you want to extract all the images from the videos in the *images* folder just add *--extract=yes* :
+By default, the *extract* argument is *no*, but if you want to extract all the images from the videos in the *images* folder just add *--extract=yes*:
 ```CLI
 python ocs_comparison.py <input_video_1> <input_video_2> --extract=yes
 ```
 
-Moreover, if you only want to extract images without run a PSNR comparison :
+Moreover, if you only want to extract images without run a PSNR comparison:
 ```CLI
 python ocs_comparison.py <input_video_1> <input_video_2> --extract=yes --psnr=no
 ```
 
+## Output reports
+
+Once the videos have been compared, you'll have four differents reports in your *output* folder.
+- *psnr.log* : This is the original PSNR report. It might be difficult to read for uninitiated people.
+- *output_psnr.log* : This is the same report but all irrelevant lines have been removed.
+- *output_average.txt* : This is a summary of *output_psnr.log* report. It regroups all the relevant lines by average.
+- *output_ass.ass* : This is a friendly report. Basically, it's the same that *output_average.txt* but in a ASS file in order to compare video directly with your own eyes where the script tell you there are differences.
+
+## Read results
+
+The most interesting value in the PSNR report is *mse_avg*. The more it's high, the more there is difference between the two videos.
+The coefficent indicates the difference value videos frame by frame.
+In the *output_average.txt* and *output_ass.ass* reports, you'll see results as following:
+```
+<first frame> -> <last frame> = <average mse_avg value> (min: <lower mse_avg value> at <frame with lower mse_avg value> - max: <higher mse_avg value> at <frame with higher mse_avg value>)
+```
+Each line represents a difference identified by the script. You can see the detail of this difference in the *output_psnr.log* report.
+
 # TODO
 
+There is more things to do in order to improve this project:
 - Add possibility to chose which report we want
 - Add differents video comparison analysis (SSIM, VMAF...)
 - Add Linux compatibility
