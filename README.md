@@ -45,7 +45,7 @@ Once the videos have been compared, you'll have four differents reports in your 
 - *psnr.log* : This is the original PSNR report. It might be difficult to read for uninitiated people.
 - *output_psnr.log* : This is the same report but all irrelevant lines have been removed.
 - *output_average.txt* : This is a summary of *output_psnr.log* report. It regroups all the relevant lines by average.
-- *output_ass.ass* : This is a friendly report. Basically, it's the same that *output_average.txt* but in a ASS file in order to compare video directly with your own eyes where the script tell you there are differences.
+- *output_ass.ass* : This is a friendly report. Basically, it's the same that *output_average.txt* but in an ASS file in order to compare video directly with your own eyes where the script tell you there are differences.
 
 ## Read results
 
