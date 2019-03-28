@@ -55,7 +55,7 @@ In the *output_average.txt* and *output_ass.ass* reports, you'll see results as 
 ```
 <first frame> -> <last frame> = <average mse_avg value> (min: <lower mse_avg value> at <frame with lower mse_avg value> - max: <higher mse_avg value> at <frame with higher mse_avg value>)
 ```
-Each line represents a difference identified by the script. You can see the detail of this difference in the *output_psnr.log* report.
+Each line represents a difference identified by the script. You can see details of this difference in the *output_psnr.log* report.
 
 # TODO
 
