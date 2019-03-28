@@ -6,6 +6,24 @@ It needs Python 3.5 or higher.
 # How it Works
 
 The script is only compatible with Windows.
+The goal is to compare two videos using PSNR and MSE estimator.
+
+It can compare video in the following formats :
+- MKV
+- MP4
+- MOV
+- AVI
+- MXF
+- MPEG
+
+Videos do not have to be in the same format to be compared. However, they must have the same resolution and the same aspect ratio.
+
+## Compare two videos
+
+Open the project folder and use the following command in you CLI (Command Line Interface) :
+```CLI
+python ocs_comparison.py <input_video_1> <input_video_2>
+```
 
 # TODO
 
