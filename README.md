@@ -7,7 +7,7 @@ This is a video comparison project using FFMPEG developped by Onii-ChanSub.
 The script is only compatible with Windows.
 The goal is to compare two videos using PSNR and MSE estimator.
 
-It can compares videos in the following formats:
+It can compare videos in the following formats:
 - MKV
 - MP4
 - MOV
