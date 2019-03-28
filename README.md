@@ -45,12 +45,12 @@ Once the videos have been compared, you'll have four differents reports in your 
 - *psnr.log* : This is the original PSNR report. It might be difficult to read for uninitiated people.
 - *output_psnr.log* : This is the same report but all irrelevant lines have been removed.
 - *output_average.txt* : This is a summary of *output_psnr.log* report. It regroups all the relevant lines by average.
-- *output_ass.ass* : This is a friendly report. Basically, it's the same that *output_average.txt* but in an ASS file in order to compare video directly with your own eyes where the script tell you there are differences.
+- *output_ass.ass* : This is a friendly report. Basically, it's the same that *output_average.txt* but in an ASS file in order to compare video directly with your own eyes where the script tells you there are differences.
 
 ## Read results
 
-The most interesting value in the PSNR report is *mse_avg*. The more it's high, the more there is difference between the two videos.
-The coefficent indicates the difference value videos frame by frame.
+The most interesting value in the PSNR report is *mse_avg*. The more it's high, the more there is differences between the two videos.
+The coefficent indicates the difference value frame by frame.
 In the *output_average.txt* and *output_ass.ass* reports, you'll see results as following:
 ```
 <first frame> -> <last frame> = <average mse_avg value> (min: <lower mse_avg value> at <frame with lower mse_avg value> - max: <higher mse_avg value> at <frame with higher mse_avg value>)
