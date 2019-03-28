@@ -2,7 +2,7 @@
 
 This is a video comparison project using FFMPEG developped by Onii-ChanSub.
 
-# How it Works
+# How it works
 
 The script is only compatible with Windows.
 The goal is to compare two videos using PSNR and MSE estimator.
