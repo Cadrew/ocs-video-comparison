@@ -1,7 +1,6 @@
 # OCS-Video-Comparison
 
 This is a video comparison project using FFMPEG developped by Onii-ChanSub.
-It needs Python 3.5 or higher.
 
 # How it Works
 
@@ -17,6 +16,11 @@ It can compare videos in the following formats :
 - MPEG
 
 Videos do not have to be in the same format to be compared. However, they must have the same resolution and the same aspect ratio.
+
+## Prerequisites
+
+You'll need Python 3.5 or higher to make this work.
+You can download the latest Python version [here](https://www.python.org/downloads/windows/).
 
 ## Compare two videos
 
