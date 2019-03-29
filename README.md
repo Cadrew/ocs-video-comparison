@@ -61,6 +61,9 @@ Each line represents a difference identified by the script. You can see details 
 
 There is more things to do in order to improve this project:
 - Add possibility to chose which report we want
+- Add possibility to change difference standard value
+- Add a detailed description of the possible results
+- Add a friendlier report with only appreciations and not values
 - Add differents video comparison analysis (SSIM, VMAF...)
 - Add Linux compatibility
 - Add possibility to extract only wanted images from video
