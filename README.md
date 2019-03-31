@@ -29,12 +29,18 @@ Open the project folder and use the following command in your CLI (Command Line 
 python ocs_comparison.py <input_video_1> <input_video_2>
 ```
 
+To run a more precise comparison:
+```CLI
+python ocs_comparison.py <input_video_1> <input_video_2> --mode=accurate
+```
+It will be longer than a basic comparison.
+
 By default, the *extract* argument is *no*, but if you want to extract all the images from the videos in the *images* folder just add *--extract=yes*:
 ```CLI
 python ocs_comparison.py <input_video_1> <input_video_2> --extract=yes
 ```
 
-Moreover, if you only want to extract images without run a PSNR comparison:
+Moreover, if you only want to extract images without running a PSNR comparison:
 ```CLI
 python ocs_comparison.py <input_video_1> <input_video_2> --extract=yes --psnr=no
 ```

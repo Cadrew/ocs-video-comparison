@@ -1,18 +1,17 @@
 import os
+import re
 import sys
+import shutil
 import subprocess
 
 def usage():
-    print("python " + sys.argv[0] + " <input_video_1> <input_video_2> [--psnr=yes/no][--extract=yes/no]")
+    print("python " + sys.argv[0] + " <input_video_1> <input_video_2> [--psnr=yes/no][--extract=yes/no][--mode=basic/accurate]")
 
 def psnr_comparison(input_video_1, input_video_2, report):
     if not os.path.exists("output"):
         os.mkdir("output")
-    print("PSNR Comparison in progress...")
-    print("It may take some time.")
     result = subprocess.Popen('ffmpeg -i "' + input_video_1 + '" -i "' + input_video_2 + '" -lavfi  psnr="output/' + report + '" -f null -', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
     result.communicate()
-    print("Done.")
 
 def get_psnr_report(filename):
     try:
@@ -21,6 +20,9 @@ def get_psnr_report(filename):
             input += file.read().replace(" ",";")
             input = input.replace("n:","")
             input = input.replace("mse_avg:","")
+            input = input.replace("mse_r:","")
+            input = input.replace("mse_g:","")
+            input = input.replace("mse_b:","")
             input = input.replace("mse_y:","")
             input = input.replace("mse_u:","")
             input = input.replace("mse_v:","")
@@ -28,6 +30,9 @@ def get_psnr_report(filename):
             input = input.replace("psnr_y:","")
             input = input.replace("psnr_u:","")
             input = input.replace("psnr_v:","")
+            input = input.replace("psnr_r:","")
+            input = input.replace("psnr_g:","")
+            input = input.replace("psnr_b:","")
             input = input.replace(";\n","\n")
             input = csv_to_array(input.split("\n"))    
             file.close()
@@ -37,17 +42,34 @@ def get_psnr_report(filename):
         print("Exiting...")
         sys.exit()
 
-def extract_images(input_video):
+def extract_images(input_video, temp = False):
     video_name = input_video.split("\\")[len(input_video.split("\\")) - 1]
     if not os.path.exists("images"):
         os.mkdir("images")
-    if not os.path.exists("images\\" + video_name.split(".")[0]):
-        os.mkdir("images\\" + video_name.split(".")[0])
-    print("Extracting all images from " + video_name + "...")
-    print("It may take a long time. Go get some coffee.")
-    result = subprocess.Popen('ffmpeg -i "' + input_video + '" "images\\' + video_name.split(".")[0] + '\\%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    if(temp):
+        if not os.path.exists("images\\temp"):
+            os.mkdir("images\\temp")
+        if not os.path.exists("images\\temp\\" + video_name.split(".")[0]):
+            os.mkdir("images\\temp\\" + video_name.split(".")[0])
+        result = subprocess.Popen('ffmpeg -ss 00:00:00.000 -to 00:00:01.000 -i "' + input_video + '" "images\\temp\\' + video_name.split(".")[0] + '\\%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        result.communicate()
+    else:
+        if not os.path.exists("images\\" + video_name.split(".")[0]):
+            os.mkdir("images\\" + video_name.split(".")[0])
+        print("Extracting all images from " + video_name + "...")
+        print("It may take a long time. Go get some coffee.")
+        result = subprocess.Popen('ffmpeg -i "' + input_video + '" "images\\' + video_name.split(".")[0] + '\\%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        result.communicate()
+        print("Done.")
+
+def video_cut(input_video, value):
+    video_name = input_video.split("\\")[len(input_video.split("\\")) - 1]
+    if not os.path.exists("output"):
+        os.mkdir("output")
+    result = subprocess.Popen('ffmpeg -ss ' + str(value) + ' -i "' + input_video + '" -c:v libx264 -c:a aac "output\\' + video_name.split(".")[0] + ' (adjusted).' + video_name.split(".")[len(video_name.split(".")) - 1] + '"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
     result.communicate()
-    print("Done.")
+    return "output\\" + video_name.split(".")[0] + " (adjusted)." + video_name.split(".")[len(video_name.split(".")) - 1]
+
 
 def get_video_duration(input_video):
     cmd = 'ffprobe -i "{}" -show_entries format=duration -v quiet -of csv="p=0"'.format(input_video)
@@ -67,6 +89,15 @@ def get_video_number_of_frames(input_video):
     )
     return int(str(output).split("frame=")[len(str(output).split("frame=")) - 1].split(" ")[0])
 
+def get_video_fps(input_video):
+    cmd = 'ffprobe -v 0 -of csv=p=0 -select_streams v:0 -show_entries stream=r_frame_rate "{}"'.format(input_video)
+    output = subprocess.check_output(
+        cmd,
+        shell=True,
+        stderr=subprocess.STDOUT
+    )
+    return float(re.findall(r'\d+', str(output))[0]) / float(re.findall(r'\d+', str(output))[1])
+
 def csv_to_array(lines):
     output = []
     for line in lines:
@@ -74,6 +105,12 @@ def csv_to_array(lines):
             cols = line.split(";")
             output.append(cols)
     return output
+
+def input_average(input):
+    average = 0.0
+    for x in range(0, len(input)):
+        average += float(input[x][1])
+    return average / len(input)
 
 def average(array, input):
     average = 0.0
@@ -93,6 +130,9 @@ def is_relevant(array, input):
     if(average(array, input) >= 70):
         return True
     return False
+
+def sort_number_string(a):
+    return int(re.findall(r'\d+', a)[0])
 
 def range_min(array, input):
     sub_input = input[array[0] - 1:array[len(array) - 1]]
@@ -179,7 +219,8 @@ def main(argv):
         usage()
         sys.exit()
     video_one, video_two = argv[0], argv[1]
-    psnr, extract = True, False
+    psnr, extract, mode = True, False, "basic"
+    accepted_modes = ["basic", "accurate"]
     for opt in argv:
         if "--extract" in opt:
             extract = (True if len(argv) > 2 \
@@ -189,25 +230,96 @@ def main(argv):
             psnr = (True if len(argv) > 2 \
                 and opt.split("--psnr=")[len(opt.split("--psnr=")) - 1] == "yes" \
                 else False)
+        elif "--mode" in opt:
+            mode = opt.split("--mode=")[len(opt.split("--mode=")) - 1]
     
+    if(mode not in accepted_modes):
+        print("Indicated mode incorrect.")
+        usage()
+        sys.exit()
+
     if(psnr):
+        if(mode == "accurate"):
+            print("Extracting sample...")
+            extract_images(video_one, True)
+            extract_images(video_two, True)
+            print("Done.")
+            
+            video_one_name = video_one.split("\\")[len(video_one.split("\\")) - 1]
+            video_two_name = video_two.split("\\")[len(video_two.split("\\")) - 1]
+            path1 = "images\\temp\\" + video_one_name.split(".")[0] + "\\"
+            path2 = "images\\temp\\" + video_two_name.split(".")[0] + "\\"
+            if not os.path.exists(path1) or not os.path.exists(path2):
+                print("Extracting failed.")
+                sys.exit()
+
+            files1, files2 = [], []
+            for r, d, f in os.walk(path1):
+                for file in f:
+                    if '.png' in file:
+                        files1.append(os.path.join(r, file))
+                    
+            for r, d, f in os.walk(path2):
+                for file in f:
+                    if '.png' in file:
+                        files2.append(os.path.join(r, file))
+            
+            files1 = sorted(files1, key = sort_number_string)
+            files2 = sorted(files2, key = sort_number_string)
+            
+            psnr_reports1, psnr_reports2, standard_range = [], [], (15 if 15 <= len(files1) else len(files1))
+            print("Adjusting videos...")
+            print("It may take some time.")
+            for i in range(0, standard_range):
+                input_psnr = []
+                for j in range(0, standard_range):
+                    if j+i >= len(files1) or not os.path.exists(files1[j+i]):
+                        break
+                    psnr_comparison(files1[j+i], files2[j], "psnr.log")
+                    input_psnr.append(get_psnr_report("psnr.log")[0])
+                psnr_reports1.append(input_average(input_psnr))
+            
+            for i in range(0, standard_range):
+                input_psnr = []
+                for j in range(0, standard_range):
+                    if j+i >= len(files2) or not os.path.exists(files2[j+i]):
+                        break
+                    psnr_comparison(files1[j], files2[j+i], "psnr.log")
+                    input_psnr.append(get_psnr_report("psnr.log")[0])
+                psnr_reports2.append(input_average(input_psnr))
+            print("Done.")
+
+            if(float(min(psnr_reports1)) < float(min(psnr_reports2))):
+                print("Cutting " + video_one_name + "...")
+                fps = get_video_fps(video_one)
+                video_one = video_cut(video_one, float((psnr_reports1.index(min(psnr_reports1))) / fps))
+                print("Done.")
+            elif(float(min(psnr_reports1)) > float(min(psnr_reports2))):
+                print("Cutting " + video_two_name + "...")
+                fps = get_video_fps(video_two)
+                video_two = video_cut(video_two, float((psnr_reports2.index(min(psnr_reports2))) / fps))
+                print("Done.")
+            shutil.rmtree('images\\temp', ignore_errors=True)
+
+        print("PSNR Comparison in progress...")
         psnr_comparison(video_one, video_two, "psnr.log")
-        input = get_psnr_report("psnr.log")
+        print("Done.")
+        input_psnr = get_psnr_report("psnr.log")
         output, comp = [], []
         psnr_standard = 70
-        for i in range(0, len(input)):
-            if(average_on_ten(input, i) > psnr_standard):
+        for i in range(0, len(input_psnr)):
+            if(average_on_ten(input_psnr, i) > psnr_standard):
                 comp.append(i + 1)
-            elif(comp and is_relevant(comp, input)):
+            elif(comp and is_relevant(comp, input_psnr)):
                 output.append(comp)
                 comp = []
             else:
                 comp = []
 
         print("Number of differences: " + str(len(output)))
-        generate_output_average(input, output, "output_average.txt")
-        generate_output_ass(input, output, video_one, "output_ass.ass")
-        generate_output_psnr(input, output, "output_psnr.log")
+        generate_output_average(input_psnr, output, "output_average.txt")
+        generate_output_ass(input_psnr, output, video_one, "output_ass.ass")
+        generate_output_psnr(input_psnr, output, "output_psnr.log")
 
     if(extract):
         extract_images(video_one)
