@@ -51,7 +51,7 @@ def extract_images(input_video, temp = False):
             os.mkdir("images\\temp")
         if not os.path.exists("images\\temp\\" + video_name.split(".")[0]):
             os.mkdir("images\\temp\\" + video_name.split(".")[0])
-        result = subprocess.Popen('ffmpeg -ss 00:00:00.000 -to 00:00:01.000 -i "' + input_video + '" "images\\temp\\' + video_name.split(".")[0] + '\\%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        result = subprocess.Popen('ffmpeg -ss 00:00:03.000 -to 00:00:05.000 -i "' + input_video + '" "images\\temp\\' + video_name.split(".")[0] + '\\%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         result.communicate()
     else:
         if not os.path.exists("images\\" + video_name.split(".")[0]):
@@ -267,7 +267,7 @@ def main(argv):
             files1 = sorted(files1, key = sort_number_string)
             files2 = sorted(files2, key = sort_number_string)
             
-            psnr_reports1, psnr_reports2, standard_range = [], [], (15 if 15 <= len(files1) else len(files1))
+            psnr_reports1, psnr_reports2, standard_range = [], [], (20 if 20 <= len(files1) else len(files1))
             print("Adjusting videos...")
             print("It may take some time.")
             for i in range(0, standard_range):
