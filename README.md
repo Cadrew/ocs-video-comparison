@@ -15,7 +15,7 @@ It can compare videos in the following formats:
 - MXF
 - MPEG
 
-Videos do not have to be in the same format to be compared. However, they must have the same resolution and the same aspect ratio.
+Videos do not have to be in the same format to be compared. However, they must have the same resolution and the same aspect ratio. It's better that both videos have the same framerate to avoid potential image shifts in the comparison.
 
 ## Prerequisites
 
