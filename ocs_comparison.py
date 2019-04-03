@@ -42,7 +42,7 @@ def get_psnr_report(filename):
         print("Exiting...")
         sys.exit()
 
-def extract_images(input_video, temp = False):
+def extract_images(input_video, temp = False, time_ss = "00:00:03.000", time_to = "00:00:05.000"):
     video_name = input_video.split("\\")[len(input_video.split("\\")) - 1]
     if not os.path.exists("images"):
         os.mkdir("images")
@@ -51,7 +51,7 @@ def extract_images(input_video, temp = False):
             os.mkdir("images\\temp")
         if not os.path.exists("images\\temp\\" + video_name.split(".")[0]):
             os.mkdir("images\\temp\\" + video_name.split(".")[0])
-        result = subprocess.Popen('ffmpeg -ss 00:00:03.000 -to 00:00:05.000 -i "' + input_video + '" "images\\temp\\' + video_name.split(".")[0] + '\\%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        result = subprocess.Popen('ffmpeg -ss ' + time_ss + ' -to ' + time_to  + ' -i "' + input_video + '" "images\\temp\\' + video_name.split(".")[0] + '\\%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         result.communicate()
     else:
         if not os.path.exists("images\\" + video_name.split(".")[0]):
@@ -220,6 +220,7 @@ def main(argv):
         sys.exit()
     video_one, video_two = argv[0], argv[1]
     psnr, extract, mode = True, False, "basic"
+    accurate_time_ss, accurate_time_to = "", ""
     accepted_modes = ["basic", "accurate"]
     for opt in argv:
         if "--extract" in opt:
@@ -232,6 +233,10 @@ def main(argv):
                 else False)
         elif "--mode" in opt:
             mode = opt.split("--mode=")[len(opt.split("--mode=")) - 1]
+        elif "-ss" in opt:
+            accurate_time_ss = argv[argv.index(opt) - len(argv) + 1]
+        elif "-to" in opt:
+            accurate_time_to = argv[argv.index(opt) - len(argv) + 1]
     
     if(mode not in accepted_modes):
         print("Indicated mode incorrect.")
@@ -241,8 +246,8 @@ def main(argv):
     if(psnr):
         if(mode == "accurate"):
             print("Extracting sample...")
-            extract_images(video_one, True)
-            extract_images(video_two, True)
+            extract_images(video_one, True, accurate_time_ss, accurate_time_to)
+            extract_images(video_two, True, accurate_time_ss, accurate_time_to)
             print("Done.")
             
             video_one_name = video_one.split("\\")[len(video_one.split("\\")) - 1]

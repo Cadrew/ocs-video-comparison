@@ -34,6 +34,10 @@ To run a more precise comparison:
 python ocs_comparison.py <input_video_1> <input_video_2> --mode=accurate
 ```
 It will be longer than a basic comparison.
+You can determine a sample with:
+```CLI
+python ocs_comparison.py <input_video_1> <input_video_2> --mode=accurate -ss 00:10:02.000 -to 00:10:05.000
+```
 
 By default, the *extract* argument is *no*, but if you want to extract all the images from the videos in the *images* folder just add *--extract=yes*:
 ```CLI
