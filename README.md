@@ -1,6 +1,6 @@
 # OCS-Video-Comparison
 
-This is a video comparison project using FFMPEG developped by Onii-ChanSub.
+This is a video comparison project using FFMPEG.
 
 # How it works
 
