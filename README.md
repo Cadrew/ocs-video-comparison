@@ -1,4 +1,4 @@
-# OCS-Video-Comparison
+# OCS Video Comparison
 
 This is a video comparison project using FFMPEG.
 
