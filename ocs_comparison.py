@@ -3,6 +3,7 @@ import re
 import sys
 import shutil
 import subprocess
+import platform
 
 def usage():
     print("python " + sys.argv[0] + " <input_video_1> <input_video_2> [--psnr=yes/no][--extract=yes/no][--mode=basic/accurate]")
@@ -10,12 +11,12 @@ def usage():
 def psnr_comparison(input_video_1, input_video_2, report):
     if not os.path.exists("output"):
         os.mkdir("output")
-    result = subprocess.Popen('ffmpeg -i "' + input_video_1 + '" -i "' + input_video_2 + '" -lavfi  psnr="output/' + report + '" -f null -', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    result = subprocess.Popen('ffmpeg -i "' + input_video_1 + '" -i "' + input_video_2 + '" -lavfi  psnr="output/' + report + '" -f null -', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
     result.communicate()
 
 def get_psnr_report(filename):
     try:
-        with open("output\\" + filename, "r") as file:
+        with open("output" + OS_SEPARATOR + filename, "r") as file:
             input = ""
             input += file.read().replace(" ",";")
             input = input.replace("n:","")
@@ -42,33 +43,33 @@ def get_psnr_report(filename):
         print("Exiting...")
         sys.exit()
 
-def extract_images(input_video, temp = False, time_ss = "00:00:03.000", time_to = "00:00:05.000"):
-    video_name = input_video.split("\\")[len(input_video.split("\\")) - 1]
+def extract_images(input_video, temp = False, time_ss = "", time_to = ""):
+    video_name = input_video.split(OS_SEPARATOR)[len(input_video.split(OS_SEPARATOR)) - 1]
     if not os.path.exists("images"):
         os.mkdir("images")
     if(temp):
-        if not os.path.exists("images\\temp"):
-            os.mkdir("images\\temp")
-        if not os.path.exists("images\\temp\\" + video_name.split(".")[0]):
-            os.mkdir("images\\temp\\" + video_name.split(".")[0])
-        result = subprocess.Popen('ffmpeg -ss ' + time_ss + ' -to ' + time_to  + ' -i "' + input_video + '" "images\\temp\\' + video_name.split(".")[0] + '\\%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        if not os.path.exists("images" + OS_SEPARATOR + "temp"):
+            os.mkdir("images" + OS_SEPARATOR + "temp")
+        if not os.path.exists("images" + OS_SEPARATOR + "temp" + OS_SEPARATOR + video_name.split(".")[0]):
+            os.mkdir("images" + OS_SEPARATOR + "temp" + OS_SEPARATOR + video_name.split(".")[0])
+        result = subprocess.Popen('ffmpeg -ss ' + time_ss + ' -to ' + time_to  + ' -i "' + input_video + '" "images' + OS_SEPARATOR + 'temp' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + '%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
         result.communicate()
     else:
-        if not os.path.exists("images\\" + video_name.split(".")[0]):
-            os.mkdir("images\\" + video_name.split(".")[0])
+        if not os.path.exists("images" + OS_SEPARATOR + video_name.split(".")[0]):
+            os.mkdir("images" + OS_SEPARATOR + video_name.split(".")[0])
         print("Extracting all images from " + video_name + "...")
         print("It may take a long time. Go get some coffee.")
-        result = subprocess.Popen('ffmpeg -i "' + input_video + '" "images\\' + video_name.split(".")[0] + '\\%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        result = subprocess.Popen('ffmpeg -i "' + input_video + '" "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + '%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
         result.communicate()
         print("Done.")
 
 def video_cut(input_video, value):
-    video_name = input_video.split("\\")[len(input_video.split("\\")) - 1]
+    video_name = input_video.split(OS_SEPARATOR)[len(input_video.split(OS_SEPARATOR)) - 1]
     if not os.path.exists("output"):
         os.mkdir("output")
-    result = subprocess.Popen('ffmpeg -ss ' + str(value) + ' -i "' + input_video + '" -c:v libx264 -c:a aac "output\\' + video_name.split(".")[0] + ' (adjusted).' + video_name.split(".")[len(video_name.split(".")) - 1] + '"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    result = subprocess.Popen('ffmpeg -ss ' + str(value) + ' -i "' + input_video + '" -c:v libx264 -c:a aac "output' + OS_SEPARATOR + video_name.split(".")[0] + ' (adjusted).' + video_name.split(".")[len(video_name.split(".")) - 1] + '"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
     result.communicate()
-    return "output\\" + video_name.split(".")[0] + " (adjusted)." + video_name.split(".")[len(video_name.split(".")) - 1]
+    return "output" + OS_SEPARATOR + video_name.split(".")[0] + " (adjusted)." + video_name.split(".")[len(video_name.split(".")) - 1]
 
 
 def get_video_duration(input_video):
@@ -87,7 +88,10 @@ def get_video_number_of_frames(input_video):
         shell=True,
         stderr=subprocess.STDOUT
     )
-    return int(str(output).split("frame=")[len(str(output).split("frame=")) - 1].split(" ")[0])
+    try:
+        return int(str(output).split("frame=")[len(str(output).split("frame=")) - 1].split(" ")[0])
+    except ValueError:
+        return int(str(output).split("frame= ")[len(str(output).split("frame= ")) - 1].split(" ")[0])
 
 def get_video_fps(input_video):
     cmd = 'ffprobe -v 0 -of csv=p=0 -select_streams v:0 -show_entries stream=r_frame_rate "{}"'.format(input_video)
@@ -161,7 +165,7 @@ def get_string_time(total_frames, current_frame, duration, timelaps=0):
 def generate_output_average(input, output, name):
     if not os.path.exists("output"):
         os.mkdir("output")
-    file = open("output\\" + name,"w")
+    file = open("output" + OS_SEPARATOR + name,"w")
     for o in range(0, len(output)):
         file.write(str(output[o][0]) + " -> " \
             + str(output[o][len(output[o]) - 1]) \
@@ -175,7 +179,7 @@ def generate_output_average(input, output, name):
 def generate_output_ass(input, output, input_video, name):
     if not os.path.exists("output"):
         os.mkdir("output")
-    file = open("output\\" + name,"w")
+    file = open("output" + OS_SEPARATOR + name,"w")
     duration = get_video_duration(input_video)
     total_frames = get_video_number_of_frames(input_video)
     file.write("[Events]\n")
@@ -197,7 +201,7 @@ def generate_output_ass(input, output, input_video, name):
 def generate_output_psnr(input, output, name):
     if not os.path.exists("output"):
         os.mkdir("output")
-    file = open("output\\" + name,"w")
+    file = open("output" + OS_SEPARATOR + name,"w")
     for o in range(0, len(output)):
         file.write("--" + str(o + 1) + "--\n")
         for p in range(output[o][0] - 1, output[o][len(output[o]) - 1]):            
@@ -220,7 +224,7 @@ def main(argv):
         sys.exit()
     video_one, video_two = argv[0], argv[1]
     psnr, extract, mode = True, False, "basic"
-    accurate_time_ss, accurate_time_to = "", ""
+    accurate_time_ss, accurate_time_to = "00:00:03.000", "00:00:05.000"
     accepted_modes = ["basic", "accurate"]
     for opt in argv:
         if "--extract" in opt:
@@ -250,10 +254,10 @@ def main(argv):
             extract_images(video_two, True, accurate_time_ss, accurate_time_to)
             print("Done.")
             
-            video_one_name = video_one.split("\\")[len(video_one.split("\\")) - 1]
-            video_two_name = video_two.split("\\")[len(video_two.split("\\")) - 1]
-            path1 = "images\\temp\\" + video_one_name.split(".")[0] + "\\"
-            path2 = "images\\temp\\" + video_two_name.split(".")[0] + "\\"
+            video_one_name = video_one.split(OS_SEPARATOR)[len(video_one.split(OS_SEPARATOR)) - 1]
+            video_two_name = video_two.split(OS_SEPARATOR)[len(video_two.split(OS_SEPARATOR)) - 1]
+            path1 = "images" + OS_SEPARATOR + "temp" + OS_SEPARATOR + video_one_name.split(".")[0] + OS_SEPARATOR
+            path2 = "images" + OS_SEPARATOR + "temp" + OS_SEPARATOR + video_two_name.split(".")[0] + OS_SEPARATOR
             if not os.path.exists(path1) or not os.path.exists(path2):
                 print("Extracting failed.")
                 sys.exit()
@@ -304,7 +308,7 @@ def main(argv):
                 fps = get_video_fps(video_two)
                 video_two = video_cut(video_two, float((psnr_reports2.index(min(psnr_reports2))) / fps))
                 print("Done.")
-            shutil.rmtree('images\\temp', ignore_errors=True)
+            shutil.rmtree('images' + OS_SEPARATOR + 'temp', ignore_errors=True)
 
         print("PSNR Comparison in progress...")
         psnr_comparison(video_one, video_two, "psnr.log")
@@ -330,5 +334,8 @@ def main(argv):
         extract_images(video_one)
         extract_images(video_two)
 
+OS_SEPARATOR = "\\"
+if(platform.system() == "Linux"):
+    OS_SEPARATOR = "/"
 if __name__ == "__main__":
     main(sys.argv[1:])

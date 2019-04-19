@@ -4,7 +4,7 @@ This is a video comparison project using FFMPEG.
 
 # How it works
 
-The script is only compatible with Windows.
+The script works on Windows and Linux.
 The goal is to compare two videos using PSNR and MSE estimator.
 
 It can compare videos in the following formats:
@@ -21,6 +21,11 @@ Videos do not have to be in the same format to be compared. However, they must h
 
 You'll need Python 3.5 or higher to make this work.
 You can download the latest Python version [here](https://www.python.org/downloads/windows/).
+
+On Linux, you'll need to install ffmpeg:
+```CLI
+sudo apt-get install ffmpeg
+```
 
 ## Compare two videos
 
