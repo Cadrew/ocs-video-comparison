@@ -80,7 +80,6 @@ There is more things to do in order to improve this project:
 - Add a detailed description of the possible results
 - Add a friendlier report with only appreciations and not values
 - Add differents video comparison analysis (SSIM, VMAF...)
-- Add Linux compatibility
 - Add possibility to extract only wanted images from video
 - Add GUI
 - Add possibility to run on GPU to improve performance
