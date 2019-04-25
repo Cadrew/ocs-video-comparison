@@ -136,6 +136,7 @@ def is_relevant(array, input):
     return False
 
 def sort_number_string(a):
+    a = a.split(OS_SEPARATOR)[len(a.split(OS_SEPARATOR)) - 1]
     return int(re.findall(r'\d+', a)[0])
 
 def range_min(array, input):
