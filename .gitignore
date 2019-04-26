@@ -1,2 +1,6 @@
 images/
 output/
+dist/
+build/
+__pycache__/
+ocs_comparison.spec
