@@ -72,6 +72,19 @@ In the *output_average.txt* and *output_ass.ass* reports, you'll see results as 
 ```
 Each line represents a difference identified by the script. You can see details of this difference in the *output_psnr.log* report.
 
+## Build
+
+Install pyinstaller:
+```CLI
+pip install pyinstaller
+```
+If you're working on Windows, you'll need to install [PyWin32](https://github.com/mhammond/pywin32/releases)
+
+Then run:
+```CLI
+pyinstaller --onefile ocs_comparison.py
+```
+
 # TODO
 
 There is more things to do in order to improve this project:
