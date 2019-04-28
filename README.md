@@ -53,7 +53,7 @@ You can extract only a sample:
 python ocs_comparison.py <input_video_1> <input_video_2> --mode=extract -ss 00:10:02.000 -to 00:10:05.000
 ```
 
-You can generate new reports with new tolerance value if you have an original psnr report without runing a comparison:
+You can generate new reports with new tolerance value if you have an original psnr report without running a PSNR comparison:
 ```CLI
 python ocs_comparison.py <input_video_1> <input_video_2> <input_report> --mode=report --standard=<value>
 ```
