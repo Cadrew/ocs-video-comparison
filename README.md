@@ -44,14 +44,18 @@ You can determine a sample with:
 python ocs_comparison.py <input_video_1> <input_video_2> --mode=accurate -ss 00:10:02.000 -to 00:10:05.000
 ```
 
-By default, the *extract* argument is *no*, but if you want to extract all the images from the videos in the *images* folder just add *--extract=yes*:
+Moreover, if you want to extract images without running a PSNR comparison:
 ```CLI
-python ocs_comparison.py <input_video_1> <input_video_2> --extract=yes
+python ocs_comparison.py <input_video_1> <input_video_2> --mode=extract
+```
+You can extract only a sample:
+```CLI
+python ocs_comparison.py <input_video_1> <input_video_2> --mode=extract -ss 00:10:02.000 -to 00:10:05.000
 ```
 
-Moreover, if you only want to extract images without running a PSNR comparison:
+You can generate new reports with new tolerance value if you have an original psnr report without runing a comparison:
 ```CLI
-python ocs_comparison.py <input_video_1> <input_video_2> --extract=yes --psnr=no
+python ocs_comparison.py <input_video_1> <input_video_2> <input_report> --mode=report --standard=<value>
 ```
 
 ## Output reports
@@ -89,13 +93,9 @@ pyinstaller --onefile ocs_comparison.py
 
 There is more things to do in order to improve this project:
 - Add possibility to chose which report we want
-- Add possibility to change difference standard value
 - Add a detailed description of the possible results
 - Add a friendlier report with only appreciations and not values
 - Add differents video comparison analysis (SSIM, VMAF...)
-- Add possibility to extract only wanted images from video
-- Add GUI
-- Add possibility to run on GPU to improve performance
 - Test many video formats
 - Test which python versions are compatible
 
