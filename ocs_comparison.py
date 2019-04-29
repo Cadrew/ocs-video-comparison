@@ -311,7 +311,7 @@ def main(argv):
                     if j+i >= len(files1) or not os.path.exists(files1[j+i]):
                         break
                     psnr_comparison(files1[j+i], files2[j], "psnr.log")
-                    input_psnr.append(get_psnr_report("psnr.log")[0])
+                    input_psnr.append(get_psnr_report("output" + OS_SEPARATOR + "psnr.log")[0])
                 psnr_reports1.append(input_average(input_psnr))
             
             for i in range(0, standard_range):
@@ -320,7 +320,7 @@ def main(argv):
                     if j+i >= len(files2) or not os.path.exists(files2[j+i]):
                         break
                     psnr_comparison(files1[j], files2[j+i], "psnr.log")
-                    input_psnr.append(get_psnr_report("psnr.log")[0])
+                    input_psnr.append(get_psnr_report("output" + OS_SEPARATOR + "psnr.log")[0])
                 psnr_reports2.append(input_average(input_psnr))
             print("Done.")
 
