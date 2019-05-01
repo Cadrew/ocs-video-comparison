@@ -58,7 +58,6 @@ def extract_images(input_video, temp = False, time_ss = "", time_to = ""):
         if not os.path.exists("images" + OS_SEPARATOR + video_name.split(".")[0]):
             os.mkdir("images" + OS_SEPARATOR + video_name.split(".")[0])
         print("Extracting images from " + video_name + "...")
-        print("It may take a long time. Go get some coffee.")
         if(time_ss != "" and time_to != ""):
             result = subprocess.Popen('ffmpeg -ss ' + time_ss + ' -to ' + time_to  + ' -i "' + input_video + '" "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + '%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
             result.communicate()
@@ -66,6 +65,15 @@ def extract_images(input_video, temp = False, time_ss = "", time_to = ""):
             result = subprocess.Popen('ffmpeg -i "' + input_video + '" "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + '%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
             result.communicate()
         print("Done.")
+
+def reduce_images(input_video, quality):
+    video_name = input_video.split(OS_SEPARATOR)[len(input_video.split(OS_SEPARATOR)) - 1]
+    if not os.path.exists("images" + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + "processed"):
+        os.mkdir("images" + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + "processed")
+    print("Reducing images quality from " + video_name + "...")
+    result = subprocess.Popen('ffmpeg -i "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + '%d.png" -q:v ' + str(quality) + ' "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + 'processed' + OS_SEPARATOR + '%d.jpg"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
+    result.communicate()
+    print("Done.")
 
 def video_cut(input_video, value):
     video_name = input_video.split(OS_SEPARATOR)[len(input_video.split(OS_SEPARATOR)) - 1]
@@ -243,6 +251,7 @@ def main(argv):
     psnr, mode = True, "basic"
     set_time_ss, set_time_to, time_set = "00:00:03.000", "00:00:05.000", False
     accepted_modes = ["basic", "accurate", "report", "extract"]
+    quality = 0
     psnr_standard = 70
     for opt in argv:
         if "--psnr" in opt:
@@ -258,6 +267,8 @@ def main(argv):
             set_time_to = argv[argv.index(opt) - len(argv) + 1]
         elif "--standard" in opt:
             psnr_standard = float(opt.split("--standard=")[len(opt.split("--standard=")) - 1])
+        elif "--quality" in opt:
+            quality = float(opt.split("--quality=")[len(opt.split("--quality=")) - 1])
     
     if(mode not in accepted_modes):
         print("Indicated mode incorrect.")
@@ -272,6 +283,9 @@ def main(argv):
         else:
             extract_images(video_one)
             extract_images(video_two)
+        if(quality > 0):
+            reduce_images(video_one, quality)
+            reduce_images(video_two, quality)
 
     if(psnr):
         if(mode == "accurate"):
