@@ -6,7 +6,7 @@ import subprocess
 import platform
 
 def usage():
-    print("python " + sys.argv[0] + " <input_video_1> <input_video_2> [--psnr=yes/no][--mode=basic/accurate/report/extract][--standard=<value>]")
+    print("python " + sys.argv[0] + " <input_video_1> <input_video_2> [--psnr=yes/no][--mode=basic/accurate/report/extract][--standard=<value>][--quality=<value>]")
 
 def psnr_comparison(input_video_1, input_video_2, report):
     if not os.path.exists("output"):

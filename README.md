@@ -52,6 +52,10 @@ You can extract only a sample:
 ```CLI
 python ocs_comparison.py <input_video_1> <input_video_2> --mode=extract -ss 00:10:02.000 -to 00:10:05.000
 ```
+And you can extract by chosing the compression level:
+```CLI
+python ocs_comparison.py <input_video_1> <input_video_2> --mode=extract -ss 00:10:02.000 -to 00:10:05.000 --quality=5
+```
 
 You can generate new reports with new tolerance value if you have an original PSNR report without running a PSNR comparison:
 ```CLI
