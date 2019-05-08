@@ -6,7 +6,7 @@ import subprocess
 import platform
 
 def usage():
-    print("python " + sys.argv[0] + " <input_video_1> <input_video_2> [--psnr=yes/no][--mode=basic/accurate/report/extract][--standard=<value>][--quality=<value>]")
+    print("python " + sys.argv[0] + " <input_video_1> <input_video_2> [--psnr=yes/no][--mode=basic/accurate/report/extract/extract-report][--standard=<value>][--quality=<value>]")
 
 def psnr_comparison(input_video_1, input_video_2, report):
     if not os.path.exists("output"):
@@ -43,7 +43,7 @@ def get_psnr_report(filepath):
         print("Exiting...")
         sys.exit()
 
-def extract_images(input_video, temp = False, time_ss = "", time_to = ""):
+def extract_images(input_video, temp = False, time_ss = "", time_to = "", extract_path = ""):
     video_name = input_video.split(OS_SEPARATOR)[len(input_video.split(OS_SEPARATOR)) - 1]
     if not os.path.exists("images"):
         os.mkdir("images")
@@ -55,23 +55,31 @@ def extract_images(input_video, temp = False, time_ss = "", time_to = ""):
         result = subprocess.Popen('ffmpeg -ss ' + time_ss + ' -to ' + time_to  + ' -i "' + input_video + '" "images' + OS_SEPARATOR + 'temp' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + '%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
         result.communicate()
     else:
+        path = ""
         if not os.path.exists("images" + OS_SEPARATOR + video_name.split(".")[0]):
             os.mkdir("images" + OS_SEPARATOR + video_name.split(".")[0])
+        if extract_path != "":
+            for folder in extract_path.split(OS_SEPARATOR):
+                path = path + OS_SEPARATOR + folder
+                if not os.path.exists("images" + OS_SEPARATOR + video_name.split(".")[0] + path):
+                    os.mkdir("images" + OS_SEPARATOR + video_name.split(".")[0] + path)
         print("Extracting images from " + video_name + "...")
         if(time_ss != "" and time_to != ""):
-            result = subprocess.Popen('ffmpeg -ss ' + time_ss + ' -to ' + time_to  + ' -i "' + input_video + '" "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + '%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
+            result = subprocess.Popen('ffmpeg -ss ' + time_ss + ' -to ' + time_to  + ' -i "' + input_video + '" "images' + OS_SEPARATOR + video_name.split(".")[0] + path + OS_SEPARATOR + '%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
             result.communicate()
         else:
-            result = subprocess.Popen('ffmpeg -i "' + input_video + '" "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + '%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
+            result = subprocess.Popen('ffmpeg -i "' + input_video + '" "images' + OS_SEPARATOR + video_name.split(".")[0] + path + OS_SEPARATOR + '%d.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
             result.communicate()
         print("Done.")
 
-def reduce_images(input_video, quality):
+def reduce_images(input_video, quality, reduce_path = ""):
     video_name = input_video.split(OS_SEPARATOR)[len(input_video.split(OS_SEPARATOR)) - 1]
-    if not os.path.exists("images" + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + "processed"):
-        os.mkdir("images" + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + "processed")
+    if(reduce_path != ""):
+        reduce_path = reduce_path + OS_SEPARATOR
+    if not os.path.exists("images" + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + "processed"):
+        os.mkdir("images" + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + "processed")
     print("Reducing images quality from " + video_name + "...")
-    result = subprocess.Popen('ffmpeg -i "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + '%d.png" -q:v ' + str(quality) + ' "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + 'processed' + OS_SEPARATOR + '%d.jpg"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
+    result = subprocess.Popen('ffmpeg -i "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + '%d.png" -q:v ' + str(quality) + ' "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + 'processed' + OS_SEPARATOR + '%d.jpg"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
     result.communicate()
     print("Done.")
 
@@ -250,7 +258,7 @@ def main(argv):
     video_one, video_two, arg_report = argv[0], argv[1], argv[2]
     psnr, mode = True, "basic"
     set_time_ss, set_time_to, time_set = "00:00:03.000", "00:00:05.000", False
-    accepted_modes = ["basic", "accurate", "report", "extract"]
+    accepted_modes = ["basic", "accurate", "report", "extract", "extract-report"]
     quality = 0
     psnr_standard = 70
     for opt in argv:
@@ -286,6 +294,30 @@ def main(argv):
         if(quality > 0):
             reduce_images(video_one, quality)
             reduce_images(video_two, quality)
+
+    if(mode == "extract-report"):
+        print("Extract Report Mode")
+        psnr = False
+        report_ss, report_to, report = "", "", ""
+        try:
+            with open(arg_report, "r") as file:
+                report = file.read().split("\n")
+        except IOError:
+            print("Unable to open report!")
+            print("Exiting...")
+            sys.exit()
+        differences = 0
+        for line in report:
+            if(len(line.split(",")) < 3):
+                continue
+            differences+=1
+            report_ss = line.split(",")[1]
+            report_to = line.split(",")[2]
+            extract_images(video_one, False, report_ss, report_to, "diff" + str(differences))
+            extract_images(video_two, False, report_ss, report_to, "diff" + str(differences))
+            if(quality > 0):
+                reduce_images(video_one, quality, "diff" + str(differences))
+                reduce_images(video_two, quality, "diff" + str(differences))
 
     if(psnr):
         if(mode == "accurate"):
