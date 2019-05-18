@@ -6,7 +6,7 @@ import subprocess
 import platform
 
 def usage():
-    print("python " + sys.argv[0] + " <input_video_1> <input_video_2> [--psnr=yes/no][--mode=basic/accurate/report/extract/extract-report][--standard=<value>][--quality=<value>]")
+    print("python " + sys.argv[0] + " <input_video_1> <input_video_2> [--psnr=yes/no][--mode=basic/accurate/report/extract/extract-report][--standard=<value>][--quality=<value>][--keep=yes/no]")
 
 def psnr_comparison(input_video_1, input_video_2, report):
     if not os.path.exists("output"):
@@ -72,15 +72,21 @@ def extract_images(input_video, temp = False, time_ss = "", time_to = "", extrac
             result.communicate()
         print("Done.")
 
-def reduce_images(input_video, quality, reduce_path = ""):
+def reduce_images(input_video, quality, keep = True, reduce_path = ""):
     video_name = input_video.split(OS_SEPARATOR)[len(input_video.split(OS_SEPARATOR)) - 1]
+    processed = ""
     if(reduce_path != ""):
         reduce_path = reduce_path + OS_SEPARATOR
     if not os.path.exists("images" + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + "processed"):
         os.mkdir("images" + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + "processed")
+    if(keep):
+        processed = "processed"
     print("Reducing images quality from " + video_name + "...")
-    result = subprocess.Popen('ffmpeg -i "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + '%d.png" -q:v ' + str(quality) + ' "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + 'processed' + OS_SEPARATOR + '%d.jpg"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
+    result = subprocess.Popen('ffmpeg -i "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + '%d.png" -q:v ' + str(quality) + ' "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + processed + OS_SEPARATOR + '%d.jpg"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
     result.communicate()
+    if(not keep):
+        result = subprocess.Popen('del "images' + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + '*.png"', stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
+        result.communicate()
     print("Done.")
 
 def video_cut(input_video, value):
@@ -259,7 +265,7 @@ def main(argv):
     psnr, mode = True, "basic"
     set_time_ss, set_time_to, time_set = "00:00:03.000", "00:00:05.000", False
     accepted_modes = ["basic", "accurate", "report", "extract", "extract-report"]
-    quality = 0
+    quality, keep = 0, True
     psnr_standard = 70
     for opt in argv:
         if "--psnr" in opt:
@@ -277,6 +283,10 @@ def main(argv):
             psnr_standard = float(opt.split("--standard=")[len(opt.split("--standard=")) - 1])
         elif "--quality" in opt:
             quality = float(opt.split("--quality=")[len(opt.split("--quality=")) - 1])
+        elif "--keep" in opt:
+            keep = (True if len(argv) > 2 \
+                and opt.split("--keep=")[len(opt.split("--keep=")) - 1] == "yes" \
+                else False)
     
     if(mode not in accepted_modes):
         print("Indicated mode incorrect.")
@@ -292,8 +302,8 @@ def main(argv):
             extract_images(video_one)
             extract_images(video_two)
         if(quality > 0):
-            reduce_images(video_one, quality)
-            reduce_images(video_two, quality)
+            reduce_images(video_one, quality, keep)
+            reduce_images(video_two, quality, keep)
 
     if(mode == "extract-report"):
         print("Extract Report Mode")
@@ -316,8 +326,8 @@ def main(argv):
             extract_images(video_one, False, report_ss, report_to, "diff" + str(differences))
             extract_images(video_two, False, report_ss, report_to, "diff" + str(differences))
             if(quality > 0):
-                reduce_images(video_one, quality, "diff" + str(differences))
-                reduce_images(video_two, quality, "diff" + str(differences))
+                reduce_images(video_one, quality, keep, "diff" + str(differences))
+                reduce_images(video_two, quality, keep, "diff" + str(differences))
 
     if(psnr):
         if(mode == "accurate"):
