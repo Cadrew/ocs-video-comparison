@@ -4,7 +4,7 @@ This is a video comparison project using FFMPEG.
 
 # How it works
 
-The script works on Windows and Linux.
+The script works on Windows only.
 The goal is to compare two videos using PSNR and MSE estimator.
 
 It can compare videos in the following formats:
@@ -102,4 +102,5 @@ There is more things to do in order to improve this project:
 - Add differents video comparison analysis (SSIM, VMAF...)
 - Test many video formats
 - Test which python versions are compatible
+- Add Linux compatibility for extracting and reducing images
 

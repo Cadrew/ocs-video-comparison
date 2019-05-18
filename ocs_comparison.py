@@ -77,7 +77,7 @@ def reduce_images(input_video, quality, keep = True, reduce_path = ""):
     processed = ""
     if(reduce_path != ""):
         reduce_path = reduce_path + OS_SEPARATOR
-    if not os.path.exists("images" + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + "processed"):
+    if(not os.path.exists("images" + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + "processed") and keep):
         os.mkdir("images" + OS_SEPARATOR + video_name.split(".")[0] + OS_SEPARATOR + reduce_path + "processed")
     if(keep):
         processed = "processed"
