@@ -2,9 +2,9 @@
 
 This is a video comparison project using FFMPEG.
 
-# How it works
+## How it works
 
-The script works on Windows only.
+The script works on mainly on Windows and needs adjustments to work fully on Linux.
 The goal is to compare two videos using PSNR and MSE estimator.
 
 It can compare videos in the following formats:
@@ -22,7 +22,9 @@ Videos do not have to be in the same format to be compared. However, they must h
 You'll need Python 3.5 or higher to make this work.
 You can download the latest Python version [here](https://www.python.org/downloads/windows/).
 
-On Linux, you'll need to install ffmpeg:
+You'll also need to download ffmpeg [here](https://www.ffmpeg.org/download.html).
+
+On Linux, you can install ffmpeg by running:
 ```CLI
 sudo apt-get install ffmpeg
 ```
@@ -72,7 +74,7 @@ Once the videos have been compared, you'll have four differents reports in your 
 
 ## Read results
 
-The most interesting value in the PSNR report is *mse_avg*. The more it's high, the more there is differences between the two videos.
+The most interesting value in the PSNR report is *mse_avg*. The more it's high, the more there are differences between the two videos.
 The coefficent indicates the difference value frame by frame.
 In the *output_average.txt* and *output_ass.ass* reports, you'll see results as following:
 ```
@@ -93,14 +95,12 @@ Then run:
 pyinstaller --onefile ocs_comparison.py
 ```
 
-# TODO
+## TODO
 
 There is more things to do in order to improve this project:
 - Add possibility to chose which report we want
 - Add a detailed description of the possible results
 - Add a friendlier report with only appreciations and not values
-- Add differents video comparison analysis (SSIM, VMAF...)
 - Test many video formats
-- Test which python versions are compatible
 - Add Linux compatibility for extracting and reducing images
 
